@@ -1,5 +1,6 @@
 using CleanArchitecture.Data;
 using Microsoft.EntityFrameworkCore;
+using CleanArchitecture.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ string connectionString =
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySQL(connectionString));
 
+builder.Services.AddScoped<IProdutoService, ProdutoService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
