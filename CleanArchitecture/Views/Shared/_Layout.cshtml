@@ -1,49 +1,49 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CleanArchitecture</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content="EventPass — ingressos para grandes shows em estádio." />
+    <title>@ViewData["Title"] | EventPass</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CleanArchitecture.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CleanArchitecture</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <header class="site-header" data-header>
+        <div class="header-inner">
+            <a class="brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="EventPass — início">
+                <span class="brand-mark" aria-hidden="true"></span><span>EventPass</span>
+            </a>
+            <button class="menu-button" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-menu" data-menu-button>
+                <span></span><span></span>
+            </button>
+            <div class="header-menu" id="main-menu" data-menu>
+                <nav class="main-nav" aria-label="Navegação principal">
+                    <a href="#eventos">Eventos</a><a href="#ingressos">Ingressos</a><a href="#sobre">Sobre</a>
+                </nav>
+                <div class="account-links">
+                    <a class="login-link" href="#">Entrar</a><a class="signup-link" href="#">Criar conta</a>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CleanArchitecture - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
+    </header>
+    <main>@RenderBody()</main>
+    <footer class="site-footer" id="sobre">
+        <div class="footer-inner">
+            <a class="brand footer-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark" aria-hidden="true"></span><span>EventPass</span>
+            </a>
+            <nav class="footer-nav" aria-label="Links do rodapé">
+                <a href="#eventos">Eventos</a><a href="#">Ajuda</a><a href="#">Termos</a><a href="#">Privacidade</a>
+            </nav>
+            <p class="copyright">&copy; 2026 EventPass</p>
+        </div>
+        <p class="photo-credits">Fotos: Pangalau, John Lill, vanRijn e Andrew King / Wikimedia Commons.</p>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

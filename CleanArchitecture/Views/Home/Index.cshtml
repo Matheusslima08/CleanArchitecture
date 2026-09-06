@@ -1,8 +1,83 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+@{ ViewData["Title"] = "Shows que ficam"; }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero" aria-labelledby="hero-title">
+    <img class="hero-image" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Bruno_Mars_Concert_at_Singapore_06.jpg?width=2000" alt="Bruno Mars no palco durante um show" fetchpriority="high" />
+    <div class="hero-shade"></div>
+    <div class="hero-content page-width">
+        <p class="hero-label">Ao vivo em São Paulo</p>
+        <h1 class="hero-title" id="hero-title"><span>Bruno</span><span>Mars</span></h1>
+        <div class="hero-details">
+            <p>São Paulo <span>•</span> Forge Arena</p><p class="hero-date">18 OUT <span>•</span> 21:00</p>
+        </div>
+        <div class="hero-actions">
+            <a class="button button-main" href="#ingressos">Ver ingressos</a><a class="button button-light" href="#eventos">Ver evento</a>
+        </div>
+    </div>
+    <div class="hero-index" aria-hidden="true"><span>01</span><i></i><span>03</span></div>
+    <a class="scroll-note" href="#eventos">Role para explorar <span aria-hidden="true">↓</span></a>
+</section>
+
+<section class="events section-space" id="eventos" aria-labelledby="events-title">
+    <div class="page-width">
+        <div class="section-heading reveal">
+            <div><p class="eyebrow">Agenda</p><h2 id="events-title">Próximos shows</h2></div>
+            <p>Três noites. Um estádio.<br />Escolha a sua.</p>
+        </div>
+        <div class="event-list">
+            <article class="event-card reveal">
+                <a class="event-image" href="#ingressos" aria-label="Ver ingressos para Bruno Mars">
+                    <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Bruno_Mars_Concert_at_Singapore_06.jpg?width=1200" alt="Bruno Mars se apresentando em estádio" loading="lazy" />
+                    <span class="event-date"><strong>18</strong> OUT</span><span class="event-arrow" aria-hidden="true">↗</span>
+                </a>
+                <div class="event-info"><div><h3>Bruno Mars</h3><p>Forge Arena <span>•</span> São Paulo</p></div><div class="event-price"><span>A partir de</span><strong>R$ 280</strong></div></div>
+            </article>
+            <article class="event-card reveal">
+                <a class="event-image" href="#ingressos" aria-label="Ver ingressos para Macklemore">
+                    <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Macklemore_At_Key_Arena_In_Seattle_(54680386).jpeg?width=1200" alt="Macklemore em uma apresentação ao vivo" loading="lazy" />
+                    <span class="event-date"><strong>09</strong> NOV</span><span class="event-arrow" aria-hidden="true">↗</span>
+                </a>
+                <div class="event-info"><div><h3>Macklemore</h3><p>Forge Arena <span>•</span> São Paulo</p></div><div class="event-price"><span>A partir de</span><strong>R$ 190</strong></div></div>
+            </article>
+            <article class="event-card reveal">
+                <a class="event-image" href="#ingressos" aria-label="Ver ingressos para Skillet">
+                    <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Skillet,_Live!.jpg?width=1200" alt="A banda Skillet tocando ao vivo" loading="lazy" />
+                    <span class="event-date"><strong>22</strong> NOV</span><span class="event-arrow" aria-hidden="true">↗</span>
+                </a>
+                <div class="event-info"><div><h3>Skillet</h3><p>Forge Arena <span>•</span> São Paulo</p></div><div class="event-price"><span>A partir de</span><strong>R$ 220</strong></div></div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="venue section-space" id="ingressos" aria-labelledby="venue-title">
+    <div class="page-width venue-layout">
+        <div class="venue-copy reveal">
+            <p class="eyebrow">Forge Arena</p><h2 id="venue-title">Escolha<br />seu lugar</h2>
+            <p>Veja os setores da arena e encontre o ponto de vista que combina com a sua noite.</p>
+            <div class="seat-legend" aria-label="Legenda de disponibilidade">
+                <span><i class="available"></i>Disponível</span><span><i class="reserved"></i>Reservado</span><span><i class="sold"></i>Vendido</span>
+            </div>
+        </div>
+        <div class="venue-map reveal" aria-label="Mapa ilustrativo dos setores da Forge Arena">
+            <div class="stage"><span>Palco</span></div><div class="sector sector-north"><span>Norte</span></div>
+            <div class="sector sector-west"><span>Oeste</span></div><div class="sector sector-east reserved-sector"><span>Leste</span></div>
+            <div class="sector sector-south sold-sector"><span>Sul</span></div><div class="sector sector-floor"><span>Pista</span></div>
+            <div class="sector sector-premium"><span>Premium</span></div><div class="field-lines" aria-hidden="true"></div>
+        </div>
+    </div>
+</section>
+
+<section class="buying section-space" aria-labelledby="steps-title">
+    <div class="page-width">
+        <div class="section-heading reveal"><div><p class="eyebrow">Do início ao ingresso</p><h2 id="steps-title">Simples em cada etapa</h2></div></div>
+        <ol class="steps reveal">
+            <li><span>01</span><strong>Escolha o show</strong></li><li><span>02</span><strong>Escolha seu lugar</strong></li>
+            <li><span>03</span><strong>Finalize a compra</strong></li><li><span>04</span><strong>Receba seu ingresso</strong></li>
+        </ol>
+    </div>
+</section>
+
+<section class="show-banner reveal" aria-label="Experiência EventPass">
+    <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Millennium_stadium_concert.jpg?width=2000" alt="Público reunido em um grande show de estádio" loading="lazy" />
+    <div class="show-banner-shade"></div><div class="show-banner-copy page-width"><p>Seu lugar.</p><p>Seu show.</p></div>
+</section>
