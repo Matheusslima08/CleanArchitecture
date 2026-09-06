@@ -61,4 +61,79 @@ function setupImageFallbacks() {
   }));
 }
 
-setupHeader(); setupMenu(); setupHero(); setupScrollAnimations(); setupImageFallbacks();
+function setupTypewriter() {
+  const target = document.querySelector("[data-typewriter]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!target || reducedMotion) return;
+
+  const names = ["Bruno Mars", "Macklemore", "Skillet"];
+  const wait = (time) => new Promise((resolve) => window.setTimeout(resolve, time));
+
+  async function typeNames() {
+    let index = 0;
+
+    while (target.isConnected) {
+      const name = names[index];
+
+      for (let length = 1; length <= name.length; length += 1) {
+        target.textContent = name.slice(0, length);
+        await wait(85);
+      }
+
+      await wait(1450);
+
+      for (let length = name.length - 1; length >= 0; length -= 1) {
+        target.textContent = name.slice(0, length);
+        await wait(48);
+      }
+
+      await wait(260);
+      index = (index + 1) % names.length;
+    }
+  }
+
+  target.textContent = "";
+  typeNames();
+}
+
+function setupTicketButton() {
+  const button = document.querySelector("[data-ticket-button]");
+  if (!button) return;
+
+  const particles = button.querySelector(".ticket-particles");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    const target = document.querySelector(button.getAttribute("href"));
+    if (!target || button.classList.contains("is-loading") || button.classList.contains("is-done")) return;
+
+    if (reducedMotion) {
+      target.scrollIntoView();
+      return;
+    }
+
+    particles.replaceChildren(...Array.from({ length: 12 }, () => document.createElement("i")));
+    button.classList.add("is-loading");
+    button.setAttribute("aria-label", "Preparando seleção de ingressos");
+
+    window.setTimeout(() => {
+      button.classList.remove("is-loading");
+      button.classList.add("is-done");
+      button.setAttribute("aria-label", "Seleção de ingressos pronta");
+    }, 850);
+
+    window.setTimeout(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 1300);
+
+    window.setTimeout(() => {
+      button.classList.remove("is-done");
+      button.setAttribute("aria-label", "Compre seu ingresso");
+      particles.replaceChildren();
+    }, 2200);
+  });
+}
+
+setupHeader(); setupMenu(); setupHero(); setupScrollAnimations(); setupImageFallbacks(); setupTypewriter(); setupTicketButton();

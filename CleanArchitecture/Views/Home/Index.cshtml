@@ -10,7 +10,15 @@
             <p>São Paulo <span>•</span> Forge Arena</p><p class="hero-date">18 OUT <span>•</span> 21:00</p>
         </div>
         <div class="hero-actions">
-            <a class="button button-main" href="#ingressos">Ver ingressos</a><a class="button button-light" href="#eventos">Ver evento</a>
+            <span class="ticket-button-wrap">
+                <a class="button button-main ticket-button" href="#ingressos" data-ticket-button aria-label="Compre seu ingresso">
+                    <span class="ticket-label">Compre seu ingresso</span>
+                    <span class="ticket-loader" aria-hidden="true"></span>
+                    <span class="ticket-check" aria-hidden="true">✓</span>
+                    <span class="ticket-particles" aria-hidden="true"></span>
+                </a>
+            </span>
+            <a class="button button-light" href="#eventos">Ver evento</a>
         </div>
     </div>
     <div class="hero-index" aria-hidden="true"><span>01</span><i></i><span>03</span></div>
@@ -20,8 +28,10 @@
 <section class="events section-space" id="eventos" aria-labelledby="events-title">
     <div class="page-width">
         <div class="section-heading reveal">
-            <div><p class="eyebrow">Agenda</p><h2 id="events-title">Próximos shows</h2></div>
-            <p>Três noites. Um estádio.<br />Escolha a sua.</p>
+            <div><p class="eyebrow">Agenda</p><h2 id="events-title">Principais atrações</h2></div>
+            <p class="artist-typing" aria-label="Bruno Mars, Macklemore e Skillet">
+                <span>Em destaque</span><strong data-typewriter aria-hidden="true">Bruno Mars</strong><i aria-hidden="true"></i>
+            </p>
         </div>
         <div class="event-list">
             <article class="event-card reveal">
