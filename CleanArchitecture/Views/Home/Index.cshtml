@@ -1,13 +1,32 @@
-@{ ViewData["Title"] = "Shows que ficam"; }
+@model CleanArchitecture.Models.Event
+@using System.Globalization
+@{
+    ViewData["Title"] = "Shows que ficam";
+
+    var culture = CultureInfo.GetCultureInfo("pt-BR");
+    var eventDate = Model.StartsAt.ToString("dd MMM", culture).ToUpper(culture);
+    var eventImage = string.IsNullOrWhiteSpace(Model.ImageUrl)
+        ? "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bruno_Mars_Concert_at_Singapore_06.jpg?width=2000"
+        : Model.ImageUrl;
+    var nameParts = Model.Name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+    var sectors = Model.Sectors.OrderBy(sector => sector.SectorId).ToList();
+    var sectorClasses = new[] { "sector-north", "sector-west", "sector-east", "sector-south", "sector-floor", "sector-premium" };
+    var lowestPrice = sectors.Count > 0 ? sectors.Min(sector => sector.Price) : 0;
+}
 
 <section class="hero" aria-labelledby="hero-title">
-    <img class="hero-image" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Bruno_Mars_Concert_at_Singapore_06.jpg?width=2000" alt="Bruno Mars no palco durante um show" fetchpriority="high" />
+    <img class="hero-image" src="@eventImage" alt="@Model.Name no palco durante um show" fetchpriority="high" />
     <div class="hero-shade"></div>
     <div class="hero-content page-width">
         <p class="hero-label">Ao vivo em São Paulo</p>
-        <h1 class="hero-title" id="hero-title"><span>Bruno</span><span>Mars</span></h1>
+        <h1 class="hero-title" id="hero-title">
+            @foreach (var part in nameParts)
+            {
+                <span>@part</span>
+            }
+        </h1>
         <div class="hero-details">
-            <p>São Paulo <span>•</span> Forge Arena</p><p class="hero-date">18 OUT <span>•</span> 21:00</p>
+            <p>@Model.Venue</p><p class="hero-date">@eventDate <span>•</span> @Model.StartsAt.ToString("HH:mm")</p>
         </div>
         <div class="hero-actions">
             <span class="ticket-button-wrap">
@@ -35,11 +54,11 @@
         </div>
         <div class="event-list">
             <article class="event-card reveal">
-                <a class="event-image" href="#ingressos" aria-label="Ver ingressos para Bruno Mars">
-                    <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Bruno_Mars_Concert_at_Singapore_06.jpg?width=1200" alt="Bruno Mars se apresentando em estádio" loading="lazy" />
-                    <span class="event-date"><strong>18</strong> OUT</span><span class="event-arrow" aria-hidden="true">↗</span>
+                <a class="event-image" href="#ingressos" aria-label="Ver ingressos para @Model.Name">
+                    <img src="@eventImage" alt="@Model.Name se apresentando ao vivo" loading="lazy" />
+                    <span class="event-date"><strong>@Model.StartsAt.ToString("dd")</strong> @Model.StartsAt.ToString("MMM", culture).ToUpper(culture)</span><span class="event-arrow" aria-hidden="true">↗</span>
                 </a>
-                <div class="event-info"><div><h3>Bruno Mars</h3><p>Forge Arena <span>•</span> São Paulo</p></div><div class="event-price"><span>A partir de</span><strong>R$ 280</strong></div></div>
+                <div class="event-info"><div><h3>@Model.Name</h3><p>@Model.Venue</p></div><div class="event-price"><span>A partir de</span><strong>@lowestPrice.ToString("C", culture)</strong></div></div>
             </article>
             <article class="event-card reveal">
                 <a class="event-image" href="#ingressos" aria-label="Ver ingressos para Macklemore">
@@ -62,21 +81,20 @@
 <section class="venue section-space" id="ingressos" aria-labelledby="venue-title">
     <div class="page-width venue-layout">
         <div class="venue-copy reveal">
-            <p class="eyebrow">Forge Arena</p><h2 id="venue-title">Escolha<br />seu lugar</h2>
+            <p class="eyebrow">@Model.Venue</p><h2 id="venue-title">Escolha<br />seu lugar</h2>
             <p>Veja os setores da arena e encontre o ponto de vista que combina com a sua noite.</p>
             <div class="seat-legend" aria-label="Legenda de disponibilidade">
                 <span><i class="available"></i>Disponível</span><span><i class="reserved"></i>Reservado</span><span><i class="sold"></i>Vendido</span>
             </div>
         </div>
         <div class="venue-view reveal">
-            <div class="venue-map" aria-label="Mapa ilustrativo dos setores da Forge Arena" data-venue-map>
+            <div class="venue-map" aria-label="Mapa ilustrativo dos setores de @Model.Venue" data-venue-map>
                 <div class="stage"><span>Palco</span></div>
-                <button class="sector sector-north" type="button" data-section="Norte"><span>Norte</span></button>
-                <button class="sector sector-west" type="button" data-section="Oeste"><span>Oeste</span></button>
-                <button class="sector sector-east reserved-sector" type="button" data-section="Leste"><span>Leste</span></button>
-                <button class="sector sector-south sold-sector" type="button" data-section="Sul"><span>Sul</span></button>
-                <button class="sector sector-floor" type="button" data-section="Pista"><span>Pista</span></button>
-                <button class="sector sector-premium" type="button" data-section="Premium"><span>Premium</span></button>
+                @for (var index = 0; index < sectors.Count && index < sectorClasses.Length; index++)
+                {
+                    var sector = sectors[index];
+                    <button class="sector @sectorClasses[index]" type="button" data-section="@sector.Name" data-sector-id="@sector.SectorId"><span>@sector.Name</span></button>
+                }
                 <div class="field-lines" aria-hidden="true"></div>
             </div>
 
@@ -95,6 +113,35 @@
                     <span data-seat-number>Cadeira —</span>
                 </div>
             </div>
+
+            @foreach (var sector in sectors)
+            {
+                <template data-sector-seats="@sector.SectorId">
+                    @foreach (var row in sector.Seats.OrderBy(seat => seat.Row).ThenBy(seat => seat.Number).GroupBy(seat => seat.Row))
+                    {
+                        <div class="seat-row">
+                            <span class="row-name">@row.Key</span>
+                            @foreach (var seat in row)
+                            {
+                                var status = seat.Status.Trim().ToLowerInvariant();
+                                var seatState = status is "sold" or "vendido" or "vendida"
+                                    ? "sold"
+                                    : status is "reserved" or "reservado" or "reservada"
+                                        ? "reserved"
+                                        : "available";
+                                var statusLabel = seatState == "sold" ? "vendida" : seatState == "reserved" ? "reservada" : "disponível";
+
+                                <button type="button"
+                                        class="seat seat-@seatState"
+                                        data-row="@seat.Row"
+                                        data-number="@seat.Number.ToString("00")"
+                                        aria-label="Fileira @seat.Row, cadeira @seat.Number, @statusLabel"
+                                        disabled="@(seatState != "available")">@seat.Number</button>
+                            }
+                        </div>
+                    }
+                </template>
+            }
         </div>
     </div>
 </section>

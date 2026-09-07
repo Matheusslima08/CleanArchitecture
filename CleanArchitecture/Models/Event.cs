@@ -6,12 +6,14 @@
 
         public string Name { get; set; } = string.Empty;
 
-        public string Vanue { get; set; } = string.Empty;
+        public string Venue { get; set; } = string.Empty;
 
-        public DateTime StartAt { get; set; }
+        public DateTime StartsAt { get; set; }
 
         public  string? ImageUrl { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<Sector> Sectors { get; set; } = new();
     }
 }

@@ -136,36 +136,13 @@ function setupTicketButton() {
   });
 }
 
-function buildSeats() {
+function buildSeats(sectionId) {
   const container = document.querySelector("[data-seat-rows]");
-  if (!container || container.children.length) return;
+  const template = [...document.querySelectorAll("[data-sector-seats]")]
+    .find((item) => item.dataset.sectorSeats === sectionId);
+  if (!container || !template) return;
 
-  "ABCDEFGHI".split("").forEach((rowName, rowIndex) => {
-    const row = document.createElement("div");
-    row.className = "seat-row";
-
-    const label = document.createElement("span");
-    label.className = "row-name";
-    label.textContent = rowName;
-    row.append(label);
-
-    for (let number = 1; number <= 12; number += 1) {
-      const seat = document.createElement("button");
-      const position = rowIndex * 12 + number;
-      const state = position % 13 === 0 ? "sold" : position % 7 === 0 ? "reserved" : "available";
-
-      seat.type = "button";
-      seat.className = `seat seat-${state}`;
-      seat.dataset.row = rowName;
-      seat.dataset.number = String(number).padStart(2, "0");
-      seat.textContent = number;
-      seat.setAttribute("aria-label", `Fileira ${rowName}, cadeira ${number}, ${state === "available" ? "disponível" : state === "reserved" ? "reservada" : "vendida"}`);
-      seat.disabled = state !== "available";
-      row.append(seat);
-    }
-
-    container.append(row);
-  });
+  container.replaceChildren(template.content.cloneNode(true));
 }
 
 function animateSeats() {
@@ -197,6 +174,7 @@ function openSection(section) {
   const sectionName = section.dataset.section;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const showSeats = () => {
+    buildSeats(section.dataset.sectorId);
     venueMap.hidden = true;
     seatMap.hidden = false;
     document.querySelector("[data-section-name]").textContent = sectionName;
@@ -294,7 +272,6 @@ function setupVenue() {
   const backButton = document.querySelector("[data-back-button]");
   if (!venueMap || !seatRows || !backButton) return;
 
-  buildSeats();
   venueMap.querySelectorAll("[data-section]").forEach((section) => {
     section.addEventListener("click", () => openSection(section));
   });

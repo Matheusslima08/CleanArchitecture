@@ -11,5 +11,11 @@ namespace CleanArchitecture.Data
         }
 
         public DbSet<Produto> Produtos { get; set; }
+
+        public DbSet<Event> Events { get; set; }
+
+        public DbSet<Sector> Sectors { get; set; }
+
+        public DbSet<Seat> Seats { get; set; }
     }
 }
