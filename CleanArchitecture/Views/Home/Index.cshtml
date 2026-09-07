@@ -111,6 +111,7 @@
                     <span data-seat-section>Setor Leste</span>
                     <span data-seat-row>Fileira —</span>
                     <span data-seat-number>Cadeira —</span>
+                    <span data-seat-message></span>
                 </div>
             </div>
 
@@ -133,6 +134,7 @@
 
                                 <button type="button"
                                         class="seat seat-@seatState"
+                                        data-seat-id="@seat.SeatId"
                                         data-row="@seat.Row"
                                         data-number="@seat.Number.ToString("00")"
                                         aria-label="Fileira @seat.Row, cadeira @seat.Number, @statusLabel"

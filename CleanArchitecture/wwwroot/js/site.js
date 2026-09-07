@@ -226,11 +226,38 @@ function openSection(section) {
     .to(venueMap, { scale: 1.28, opacity: 0, duration: .24, ease: "power2.in" });
 }
 
-function selectSeat(seat) {
-  document.querySelector(".seat-selected")?.classList.remove("seat-selected");
-  seat.classList.add("seat-selected");
-  document.querySelector("[data-seat-row]").textContent = `Fileira ${seat.dataset.row}`;
-  document.querySelector("[data-seat-number]").textContent = `Cadeira ${seat.dataset.number}`;
+async function selectSeat(seat) {
+  const message = document.querySelector("[data-seat-message]");
+  seat.disabled = true;
+  if (message) message.textContent = "Reservando...";
+
+  try {
+    const response = await fetch("/api/reservations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Number(seat.dataset.seatId))
+    });
+    const result = await response.json();
+
+    if (!result.success) {
+      seat.classList.remove("seat-available", "seat-selected");
+      seat.classList.add("seat-reserved");
+      seat.setAttribute("aria-label", `Fileira ${seat.dataset.row}, cadeira ${seat.dataset.number}, indisponível`);
+      if (message) message.textContent = result.message;
+      return;
+    }
+
+    document.querySelector(".seat-selected")?.classList.remove("seat-selected");
+    seat.classList.remove("seat-available");
+    seat.classList.add("seat-reserved", "seat-selected");
+    seat.setAttribute("aria-label", `Fileira ${seat.dataset.row}, cadeira ${seat.dataset.number}, reservada`);
+    document.querySelector("[data-seat-row]").textContent = `Fileira ${seat.dataset.row}`;
+    document.querySelector("[data-seat-number]").textContent = `Cadeira ${seat.dataset.number}`;
+    if (message) message.textContent = result.message;
+  } catch {
+    seat.disabled = false;
+    if (message) message.textContent = "Não foi possível reservar a cadeira.";
+  }
 }
 
 function closeSection() {
@@ -277,7 +304,7 @@ function setupVenue() {
   });
   seatRows.addEventListener("click", (event) => {
     const seat = event.target.closest(".seat-available");
-    if (seat) selectSeat(seat);
+    if (seat && !seat.disabled) selectSeat(seat);
   });
   backButton.addEventListener("click", closeSection);
 }

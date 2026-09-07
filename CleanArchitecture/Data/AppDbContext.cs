@@ -17,5 +17,7 @@ namespace CleanArchitecture.Data
         public DbSet<Sector> Sectors { get; set; }
 
         public DbSet<Seat> Seats { get; set; }
+
+        public DbSet<Reservation> Reservations { get; set; }
     }
 }

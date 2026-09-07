@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
