@@ -136,4 +136,180 @@ function setupTicketButton() {
   });
 }
 
-setupHeader(); setupMenu(); setupHero(); setupScrollAnimations(); setupImageFallbacks(); setupTypewriter(); setupTicketButton();
+function buildSeats() {
+  const container = document.querySelector("[data-seat-rows]");
+  if (!container || container.children.length) return;
+
+  "ABCDEFGHI".split("").forEach((rowName, rowIndex) => {
+    const row = document.createElement("div");
+    row.className = "seat-row";
+
+    const label = document.createElement("span");
+    label.className = "row-name";
+    label.textContent = rowName;
+    row.append(label);
+
+    for (let number = 1; number <= 12; number += 1) {
+      const seat = document.createElement("button");
+      const position = rowIndex * 12 + number;
+      const state = position % 13 === 0 ? "sold" : position % 7 === 0 ? "reserved" : "available";
+
+      seat.type = "button";
+      seat.className = `seat seat-${state}`;
+      seat.dataset.row = rowName;
+      seat.dataset.number = String(number).padStart(2, "0");
+      seat.textContent = number;
+      seat.setAttribute("aria-label", `Fileira ${rowName}, cadeira ${number}, ${state === "available" ? "disponível" : state === "reserved" ? "reservada" : "vendida"}`);
+      seat.disabled = state !== "available";
+      row.append(seat);
+    }
+
+    container.append(row);
+  });
+}
+
+function animateSeats() {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  gsap.from(".seat-row", {
+    y: -18,
+    opacity: 0,
+    duration: .42,
+    stagger: .055,
+    ease: "power2.out"
+  });
+
+  gsap.from(".seat", {
+    y: -9,
+    scale: .6,
+    opacity: 0,
+    duration: .35,
+    stagger: { each: .008, from: "end" },
+    ease: "back.out(1.5)"
+  });
+}
+
+function openSection(section) {
+  const venueMap = document.querySelector("[data-venue-map]");
+  const seatMap = document.querySelector("[data-seat-map]");
+  if (!venueMap || !seatMap || venueMap.dataset.busy === "true") return;
+
+  const sectionName = section.dataset.section;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const showSeats = () => {
+    venueMap.hidden = true;
+    seatMap.hidden = false;
+    document.querySelector("[data-section-name]").textContent = sectionName;
+    document.querySelector("[data-seat-section]").textContent = `Setor ${sectionName}`;
+    document.querySelector("[data-seat-row]").textContent = "Fileira —";
+    document.querySelector("[data-seat-number]").textContent = "Cadeira —";
+    document.querySelector(".seat-selected")?.classList.remove("seat-selected");
+
+    if (!window.gsap || reducedMotion) {
+      venueMap.dataset.busy = "false";
+      return;
+    }
+
+    gsap.fromTo(seatMap,
+      { y: 18, scale: .97, opacity: 0 },
+      { y: 0, scale: 1, opacity: 1, duration: .38, ease: "power3.out", onComplete: () => {
+        venueMap.dataset.busy = "false";
+        animateSeats();
+        seatMap.querySelector("[data-back-button]").focus({ preventScroll: true });
+      }}
+    );
+  };
+
+  venueMap.dataset.busy = "true";
+  venueMap.classList.add("has-selection");
+  section.classList.add("is-active");
+
+  if (!window.gsap || reducedMotion) {
+    showSeats();
+    return;
+  }
+
+  const mapBox = venueMap.getBoundingClientRect();
+  const sectionBox = section.getBoundingClientRect();
+  const originX = ((sectionBox.left + sectionBox.width / 2 - mapBox.left) / mapBox.width) * 100;
+  const originY = ((sectionBox.top + sectionBox.height / 2 - mapBox.top) / mapBox.height) * 100;
+  const tilt = sectionName === "Leste" ? 7 : sectionName === "Oeste" ? -7 : 0;
+
+  gsap.timeline({ onComplete: showSeats })
+    .to(venueMap, {
+      scale: 1.1,
+      rotationX: 8,
+      rotationY: tilt,
+      transformOrigin: `${originX}% ${originY}%`,
+      duration: .34,
+      ease: "power2.out"
+    })
+    .to(section, { scale: 1.16, filter: "drop-shadow(0 0 14px rgba(239,106,50,.95))", duration: .28 }, "<")
+    .to(venueMap, { scale: 1.28, opacity: 0, duration: .24, ease: "power2.in" });
+}
+
+function selectSeat(seat) {
+  document.querySelector(".seat-selected")?.classList.remove("seat-selected");
+  seat.classList.add("seat-selected");
+  document.querySelector("[data-seat-row]").textContent = `Fileira ${seat.dataset.row}`;
+  document.querySelector("[data-seat-number]").textContent = `Cadeira ${seat.dataset.number}`;
+}
+
+function closeSection() {
+  const venueMap = document.querySelector("[data-venue-map]");
+  const seatMap = document.querySelector("[data-seat-map]");
+  const selectedSection = venueMap?.querySelector(".is-active");
+  if (!venueMap || !seatMap || seatMap.hidden) return;
+
+  const showMap = () => {
+    seatMap.hidden = true;
+    venueMap.hidden = false;
+    venueMap.classList.remove("has-selection");
+    selectedSection?.classList.remove("is-active");
+
+    if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    gsap.set(selectedSection, { clearProps: "transform,filter" });
+    gsap.set(seatMap, { clearProps: "transform,opacity" });
+    gsap.set(".seat-row, .seat", { clearProps: "transform,opacity" });
+    gsap.fromTo(venueMap,
+      { scale: 1.14, rotationX: 8, rotationY: 5, opacity: 0 },
+      { scale: 1, rotationX: 0, rotationY: 0, opacity: 1, duration: .45, ease: "power3.out", clearProps: "transform,opacity,transformOrigin" }
+    );
+  };
+
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    showMap();
+    return;
+  }
+
+  gsap.timeline({ onComplete: showMap })
+    .to(".seat-row", { y: 12, opacity: 0, duration: .2, stagger: { each: .02, from: "end" } })
+    .to(seatMap, { y: 18, scale: .97, opacity: 0, duration: .25, ease: "power2.in" }, "<.08");
+}
+
+function setupVenue() {
+  const venueMap = document.querySelector("[data-venue-map]");
+  const seatRows = document.querySelector("[data-seat-rows]");
+  const backButton = document.querySelector("[data-back-button]");
+  if (!venueMap || !seatRows || !backButton) return;
+
+  buildSeats();
+  venueMap.querySelectorAll("[data-section]").forEach((section) => {
+    section.addEventListener("click", () => openSection(section));
+  });
+  seatRows.addEventListener("click", (event) => {
+    const seat = event.target.closest(".seat-available");
+    if (seat) selectSeat(seat);
+  });
+  backButton.addEventListener("click", closeSection);
+}
+
+setupHeader();
+setupMenu();
+setupHero();
+setupScrollAnimations();
+setupImageFallbacks();
+setupTypewriter();
+setupTicketButton();
+setupVenue();

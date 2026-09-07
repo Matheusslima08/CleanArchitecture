@@ -68,11 +68,33 @@
                 <span><i class="available"></i>Disponível</span><span><i class="reserved"></i>Reservado</span><span><i class="sold"></i>Vendido</span>
             </div>
         </div>
-        <div class="venue-map reveal" aria-label="Mapa ilustrativo dos setores da Forge Arena">
-            <div class="stage"><span>Palco</span></div><div class="sector sector-north"><span>Norte</span></div>
-            <div class="sector sector-west"><span>Oeste</span></div><div class="sector sector-east reserved-sector"><span>Leste</span></div>
-            <div class="sector sector-south sold-sector"><span>Sul</span></div><div class="sector sector-floor"><span>Pista</span></div>
-            <div class="sector sector-premium"><span>Premium</span></div><div class="field-lines" aria-hidden="true"></div>
+        <div class="venue-view reveal">
+            <div class="venue-map" aria-label="Mapa ilustrativo dos setores da Forge Arena" data-venue-map>
+                <div class="stage"><span>Palco</span></div>
+                <button class="sector sector-north" type="button" data-section="Norte"><span>Norte</span></button>
+                <button class="sector sector-west" type="button" data-section="Oeste"><span>Oeste</span></button>
+                <button class="sector sector-east reserved-sector" type="button" data-section="Leste"><span>Leste</span></button>
+                <button class="sector sector-south sold-sector" type="button" data-section="Sul"><span>Sul</span></button>
+                <button class="sector sector-floor" type="button" data-section="Pista"><span>Pista</span></button>
+                <button class="sector sector-premium" type="button" data-section="Premium"><span>Premium</span></button>
+                <div class="field-lines" aria-hidden="true"></div>
+            </div>
+
+            <div class="seat-map" data-seat-map hidden>
+                <div class="seat-map-head">
+                    <button class="back-button" type="button" data-back-button>← Voltar ao mapa</button>
+                    <p><span>Setor</span><strong data-section-name>Leste</strong></p>
+                </div>
+                <div class="seat-stage"><span>Palco</span></div>
+                <div class="seat-scroll">
+                    <div class="seat-rows" data-seat-rows></div>
+                </div>
+                <div class="seat-info" aria-live="polite">
+                    <span data-seat-section>Setor Leste</span>
+                    <span data-seat-row>Fileira —</span>
+                    <span data-seat-number>Cadeira —</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
