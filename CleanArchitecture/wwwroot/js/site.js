@@ -248,6 +248,7 @@ async function selectSeat(seat) {
     }
 
     document.querySelector(".seat-selected")?.classList.remove("seat-selected");
+    updateSeat({ seatId: Number(seat.dataset.seatId), status: "Reserved" });
     seat.classList.remove("seat-available");
     seat.classList.add("seat-reserved", "seat-selected");
     seat.setAttribute("aria-label", `Fileira ${seat.dataset.row}, cadeira ${seat.dataset.number}, reservada`);
@@ -255,9 +256,44 @@ async function selectSeat(seat) {
     document.querySelector("[data-seat-number]").textContent = `Cadeira ${seat.dataset.number}`;
     if (message) message.textContent = result.message;
   } catch {
-    seat.disabled = false;
+    seat.disabled = !seat.classList.contains("seat-available");
     if (message) message.textContent = "Não foi possível reservar a cadeira.";
   }
+}
+
+function updateSeat({ seatId, status }) {
+  if (!Number.isInteger(seatId) || !["Available", "Reserved", "Sold"].includes(status)) return;
+  const roots = [document, ...[...document.querySelectorAll("[data-sector-seats]")].map(t => t.content)];
+  const label = { Available: "disponível", Reserved: "reservada", Sold: "vendida" }[status];
+  roots.forEach(root => root.querySelectorAll(`[data-seat-id="${seatId}"]`).forEach(seat => {
+    seat.classList.remove("seat-available", "seat-reserved", "seat-sold", "seat-selected");
+    seat.classList.add(`seat-${status.toLowerCase()}`);
+    seat.disabled = status !== "Available";
+    seat.setAttribute("aria-label", `Fileira ${seat.dataset.row}, cadeira ${seat.dataset.number}, ${label}`);
+  }));
+}
+
+function setupSeatUpdates() {
+  if (!document.querySelector("[data-seat-rows]")) return;
+  const message = document.querySelector("[data-seat-message]");
+  if (!window.signalR) {
+    if (message) message.textContent = "Não foi possível conectar às atualizações de cadeiras. Atualize a página.";
+    return;
+  }
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/hubs/seats")
+    .withAutomaticReconnect()
+    .build();
+  connection.on("SeatUpdated", updateSeat);
+  async function start() {
+    try { await connection.start(); }
+    catch {
+      if (message) message.textContent = "Reconectando às atualizações de cadeiras...";
+      window.setTimeout(start, 5000);
+    }
+  }
+  connection.onclose(start);
+  start();
 }
 
 function closeSection() {
@@ -317,3 +353,4 @@ setupImageFallbacks();
 setupTypewriter();
 setupTicketButton();
 setupVenue();
+setupSeatUpdates();

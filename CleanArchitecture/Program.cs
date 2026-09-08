@@ -1,6 +1,8 @@
 using CleanArchitecture.Data;
 using Microsoft.EntityFrameworkCore;
 using CleanArchitecture.Services;
+using StackExchange.Redis;
+using CleanArchitecture.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +18,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<ISeatReservationCache, RedisSeatReservationCache>();
+builder.Services.AddScoped<ISeatNotifier, SeatNotifier>();
+builder.Services.AddHostedService<ReservationExpirationService>();
+builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var connectionString =
+        builder.Configuration["Redis:ConnectionString"];
+
+    return ConnectionMultiplexer.Connect(connectionString!);
+});
 
 var app = builder.Build();
 
@@ -35,6 +49,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+app.MapHub<SeatHub>("/hubs/seats");
 
 app.MapControllerRoute(
     name: "default",
