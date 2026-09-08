@@ -255,10 +255,176 @@ async function selectSeat(seat) {
     document.querySelector("[data-seat-row]").textContent = `Fileira ${seat.dataset.row}`;
     document.querySelector("[data-seat-number]").textContent = `Cadeira ${seat.dataset.number}`;
     if (message) message.textContent = result.message;
+    showPayment(seat);
   } catch {
     seat.disabled = !seat.classList.contains("seat-available");
     if (message) message.textContent = "Não foi possível reservar a cadeira.";
   }
+}
+
+let reservationTimer;
+
+function startReservationTimer(seconds = 600) {
+  const timer = document.querySelector("[data-reservation-timer]");
+  if (!timer) return;
+
+  window.clearInterval(reservationTimer);
+  timer.classList.remove("is-expired");
+  let remaining = seconds;
+
+  const update = () => {
+    if (remaining <= 0) {
+      window.clearInterval(reservationTimer);
+      timer.textContent = "Reserva expirada";
+      timer.classList.add("is-expired");
+      return;
+    }
+
+    const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
+    const secondsLeft = String(remaining % 60).padStart(2, "0");
+    timer.innerHTML = `Reserva expira em <strong>${minutes}:${secondsLeft}</strong>`;
+    remaining -= 1;
+  };
+
+  update();
+  reservationTimer = window.setInterval(update, 1000);
+}
+
+function showPayment(seat) {
+  const seatMap = document.querySelector("[data-seat-map]");
+  const payment = document.querySelector("[data-payment]");
+  const section = document.querySelector("[data-venue-map] .is-active");
+  if (!seatMap || !payment || !section) return;
+
+  payment.querySelector("[data-summary-event]").textContent = payment.dataset.eventName;
+  payment.querySelector("[data-summary-section]").textContent = `Setor ${section.dataset.section}`;
+  payment.querySelector("[data-summary-row]").textContent = `Fileira ${seat.dataset.row}`;
+  payment.querySelector("[data-summary-seat]").textContent = `Cadeira ${seat.dataset.number}`;
+  payment.querySelector("[data-summary-price]").textContent = section.dataset.sectorPrice;
+
+  const reveal = () => {
+    seatMap.hidden = true;
+    payment.hidden = false;
+    startReservationTimer();
+
+    if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      payment.querySelector("[data-payment-method='card']")?.focus({ preventScroll: true });
+      return;
+    }
+
+    gsap.fromTo(payment,
+      { y: 26, opacity: 0 },
+      { y: 0, opacity: 1, duration: .52, ease: "power3.out", clearProps: "transform,opacity" }
+    );
+    gsap.fromTo("[data-payment-card]",
+      { rotationX: 8, rotationY: -9, scale: .94, opacity: 0 },
+      { rotationX: 0, rotationY: 0, scale: 1, opacity: 1, duration: .7, delay: .08, ease: "power3.out", clearProps: "transform,opacity" }
+    );
+  };
+
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    reveal();
+    return;
+  }
+
+  gsap.to(seatMap, {
+    scale: .97,
+    opacity: .35,
+    duration: .38,
+    delay: .35,
+    ease: "power2.in",
+    onComplete: reveal
+  });
+}
+
+function showPix(show) {
+  const cardPanel = document.querySelector("[data-card-panel]");
+  const cardForm = document.querySelector("[data-card-form]");
+  const pixPanel = document.querySelector("[data-pix-panel]");
+  const next = show ? pixPanel : cardPanel;
+  const current = show ? cardPanel : pixPanel;
+  if (!cardPanel || !cardForm || !pixPanel || (show && !pixPanel.hidden) || (!show && !cardPanel.hidden)) return;
+
+  const swap = () => {
+    current.hidden = true;
+    next.hidden = false;
+    cardForm.hidden = show;
+
+    if (window.gsap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.fromTo(next, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: .3, ease: "power2.out", clearProps: "transform,opacity" });
+      if (!show) gsap.fromTo(cardForm, { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: .3, ease: "power2.out", clearProps: "transform,opacity" });
+    }
+  };
+
+  if (window.gsap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gsap.to(current, { y: -8, opacity: 0, duration: .18, ease: "power2.in", onComplete: swap });
+  } else {
+    swap();
+  }
+}
+
+function setupCardTilt() {
+  const card = document.querySelector("[data-payment-card]");
+  if (!card || window.matchMedia("(hover: none), (pointer: coarse), (max-width: 720px), (prefers-reduced-motion: reduce)").matches) return;
+
+  card.addEventListener("mousemove", (event) => {
+    const bounds = card.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width;
+    const y = (event.clientY - bounds.top) / bounds.height;
+    card.style.setProperty("--spot-x", `${x * 100}%`);
+    card.style.setProperty("--spot-y", `${y * 100}%`);
+    card.style.transform = `perspective(1100px) rotateX(${(0.5 - y) * 12}deg) rotateY(${(x - 0.5) * 14}deg) scale(1.035)`;
+  });
+
+  card.addEventListener("mouseleave", () => {
+    card.style.setProperty("--spot-x", "50%");
+    card.style.setProperty("--spot-y", "50%");
+    card.style.transform = "perspective(1100px) rotateX(0) rotateY(0) scale(1)";
+  });
+}
+
+function setupPayment() {
+  const payment = document.querySelector("[data-payment]");
+  if (!payment) return;
+
+  const nameInput = payment.querySelector("[data-card-name-input]");
+  const numberInput = payment.querySelector("[data-card-number-input]");
+  const expiryInput = payment.querySelector("[data-card-expiry-input]");
+  const setText = (target, value, fallback) => {
+    payment.querySelector(target).textContent = value.trim() || fallback;
+  };
+
+  nameInput.addEventListener("input", () => setText("[data-card-name]", nameInput.value, "NOME DO TITULAR"));
+  numberInput.addEventListener("input", () => {
+    const digits = numberInput.value.replace(/\D/g, "").slice(0, 16);
+    numberInput.value = digits.replace(/(.{4})/g, "$1 ").trim();
+    setText("[data-card-number]", numberInput.value, "0000 0000 0000 0000");
+  });
+  expiryInput.addEventListener("input", () => {
+    const digits = expiryInput.value.replace(/\D/g, "").slice(0, 4);
+    expiryInput.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+    setText("[data-card-expiry]", expiryInput.value, "MM/AA");
+  });
+
+  payment.querySelectorAll("[data-payment-method]").forEach((button) => button.addEventListener("click", () => {
+    const usePix = button.dataset.paymentMethod === "pix";
+    payment.querySelectorAll("[data-payment-method]").forEach((item) => item.setAttribute("aria-selected", String(item === button)));
+    showPix(usePix);
+  }));
+
+  payment.querySelector("[data-copy-pix]").addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const code = payment.querySelector("[data-pix-code]").textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      button.textContent = "Código copiado";
+    } catch {
+      button.textContent = "Selecione e copie o código";
+    }
+    window.setTimeout(() => { button.textContent = "Copiar código"; }, 1800);
+  });
+
+  setupCardTilt();
 }
 
 function updateSeat({ seatId, status }) {
@@ -354,3 +520,4 @@ setupTypewriter();
 setupTicketButton();
 setupVenue();
 setupSeatUpdates();
+setupPayment();
