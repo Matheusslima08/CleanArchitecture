@@ -93,7 +93,7 @@
                 @for (var index = 0; index < sectors.Count && index < sectorClasses.Length; index++)
                 {
                     var sector = sectors[index];
-                    <button class="sector @sectorClasses[index]" type="button" data-section="@sector.Name" data-sector-id="@sector.SectorId"><span>@sector.Name</span></button>
+                    <button class="sector @sectorClasses[index]" type="button" data-section="@sector.Name" data-sector-id="@sector.SectorId" data-sector-price="@sector.Price.ToString("C", culture)"><span>@sector.Name</span></button>
                 }
                 <div class="field-lines" aria-hidden="true"></div>
             </div>
@@ -114,6 +114,66 @@
                     <span data-seat-message></span>
                 </div>
             </div>
+
+            <section class="payment" data-payment data-event-name="@Model.Name" aria-labelledby="payment-title" hidden>
+                <div class="payment-head">
+                    <div>
+                        <p class="payment-status"><span aria-hidden="true">✓</span> Reserva realizada</p>
+                        <p class="reservation-timer" data-reservation-timer aria-live="polite">Reserva expira em <strong>10:00</strong></p>
+                        <h3 id="payment-title">Pagamento</h3>
+                    </div>
+                    <div class="payment-methods" role="tablist" aria-label="Método de pagamento">
+                        <button type="button" role="tab" aria-selected="true" aria-controls="card-panel" data-payment-method="card">Cartão</button>
+                        <button type="button" role="tab" aria-selected="false" aria-controls="pix-panel" data-payment-method="pix">PIX</button>
+                    </div>
+                </div>
+
+                <div class="payment-content">
+                    <div class="payment-view">
+                        <div class="payment-card-wrap" id="card-panel" role="tabpanel" data-card-panel>
+                            <div class="payment-card" data-payment-card>
+                                <div class="card-top"><strong>EventPass</strong><span>CARD</span></div>
+                                <span class="card-symbol" aria-hidden="true"></span>
+                                <p class="card-number" data-card-number>4242 4242 4242 4242</p>
+                                <div class="card-bottom">
+                                    <p><span>Nome</span><strong class="card-name" data-card-name>Ana Costa</strong></p>
+                                    <p><span>Validade</span><strong class="card-expiry" data-card-expiry>12/29</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pix-box" id="pix-panel" role="tabpanel" data-pix-panel hidden>
+                            <div class="pix-title"><span aria-hidden="true">◆</span><strong>PIX</strong></div>
+                            <div class="pix-qr" role="img" aria-label="QR Code demonstrativo, sem valor para pagamento">
+                                <i></i><i></i><i></i>
+                            </div>
+                            <p>QR Code de demonstração</p>
+                            <div class="pix-code"><code data-pix-code>00020126EVENTPASS-DEMO-2026-SEM-VALOR</code></div>
+                            <button type="button" data-copy-pix>Copiar código</button>
+                        </div>
+                    </div>
+
+                    <div class="payment-side">
+                        <div class="payment-form" data-card-form aria-label="Dados visuais do cartão">
+                            <label>Nome no cartão<input type="text" value="Ana Costa" maxlength="28" autocomplete="off" data-card-name-input /></label>
+                            <label>Número do cartão<input type="text" value="4242 4242 4242 4242" maxlength="19" inputmode="numeric" autocomplete="off" data-card-number-input /></label>
+                            <div>
+                                <label>Validade<input type="text" value="12/29" maxlength="5" inputmode="numeric" autocomplete="off" data-card-expiry-input /></label>
+                                <label>CVV<input type="password" value="123" maxlength="4" inputmode="numeric" autocomplete="off" /></label>
+                            </div>
+                        </div>
+
+                        <dl class="payment-summary">
+                            <div><dt>Evento</dt><dd data-summary-event>@Model.Name</dd></div>
+                            <div><dt>Setor</dt><dd data-summary-section>—</dd></div>
+                            <div><dt>Fileira</dt><dd data-summary-row>—</dd></div>
+                            <div><dt>Cadeira</dt><dd data-summary-seat>—</dd></div>
+                            <div class="summary-price"><dt>Preço</dt><dd data-summary-price>—</dd></div>
+                        </dl>
+                        <p class="payment-note">Demonstração visual — nenhum dado será enviado ou armazenado.</p>
+                    </div>
+                </div>
+            </section>
 
             @foreach (var sector in sectors)
             {
