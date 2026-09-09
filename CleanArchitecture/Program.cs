@@ -21,6 +21,7 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<ISeatReservationCache, RedisSeatReservationCache>();
 builder.Services.AddScoped<ISeatNotifier, SeatNotifier>();
 builder.Services.AddHostedService<ReservationExpirationService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
