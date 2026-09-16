@@ -1,16 +1,22 @@
 ﻿using CleanArchitecture.Data;
+using CleanArchitecture.Messages;
 using CleanArchitecture.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace CleanArchitecture.Services
 {
     public class OrderService : IOrderService
     {
         private readonly AppDbContext _context;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public OrderService(AppDbContext context)
+        public OrderService(
+            AppDbContext context,
+            IMessagePublisher messagePublisher)
         {
             _context = context;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<(bool Success, string Message, Order? Order)> CreateOrderAsync(int seatId)
@@ -70,6 +76,19 @@ namespace CleanArchitecture.Services
             _context.Orders.Add(order);
 
             await _context.SaveChangesAsync();
+
+            var paymentRequested = new PaymentRequested
+            {
+                OrderId = order.OrderId,
+                Amount = order.TotalAmount
+            };
+
+            var message = JsonSerializer.Serialize(paymentRequested);
+
+            await _messagePublisher.PublishAsync(
+                "payment.requested",
+
+                message);
 
             return (true, "Pedido criado com sucesso.", order);
         }

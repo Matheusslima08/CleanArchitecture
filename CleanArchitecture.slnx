@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="CleanArchitecture/CleanArchitecture.csproj" />
+  <Project Path="EventPass.PaymentWorker/EventPass.PaymentWorker.csproj" Id="8cbddf9f-01e2-4dd3-9438-8b485039908c" />
 </Solution>
