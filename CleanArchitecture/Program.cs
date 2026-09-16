@@ -23,6 +23,7 @@ builder.Services.AddScoped<ISeatNotifier, SeatNotifier>();
 builder.Services.AddHostedService<ReservationExpirationService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IMessagePublisher, RabbitMqPublisher>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
