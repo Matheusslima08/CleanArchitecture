@@ -29,10 +29,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var connectionString =
-        builder.Configuration["Redis:ConnectionString"];
+    var connectionString = builder.Configuration["Redis:ConnectionString"]
+        ?? throw new InvalidOperationException("Redis:ConnectionString não configurado.");
 
-    return ConnectionMultiplexer.Connect(connectionString!);
+    return ConnectionMultiplexer.Connect(connectionString);
 });
 
 var app = builder.Build();

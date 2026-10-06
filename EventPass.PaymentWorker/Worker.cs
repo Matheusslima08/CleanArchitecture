@@ -1,8 +1,6 @@
-using EventPass.PaymentWorker.Messages;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using System.Text.Json;
 
 namespace EventPass.PaymentWorker
 {
@@ -15,10 +13,10 @@ namespace EventPass.PaymentWorker
         {
             var factory = new ConnectionFactory
             {
-                HostName = configuration["RabbitMQ:Host"],
+                HostName = configuration["RabbitMQ:Host"] ?? throw new InvalidOperationException("RabbitMQ:Host não configurado."),
                 Port = int.Parse(configuration["RabbitMQ:Port"]!),
-                UserName = configuration["RabbitMQ:User"],
-                Password = configuration["RabbitMQ:Password"]
+                UserName = configuration["RabbitMQ:User"] ?? throw new InvalidOperationException("RabbitMQ:User não configurado."),
+                Password = configuration["RabbitMQ:Password"] ?? throw new InvalidOperationException("RabbitMQ:Password não configurado.")
             };
 
             await using var connection =
@@ -74,33 +72,10 @@ namespace EventPass.PaymentWorker
                     var json = Encoding.UTF8.GetString(
                         args.Body.ToArray());
 
-                    PaymentRequested? payment;
-
-                    try
-                    {
-                        payment = JsonSerializer.Deserialize<PaymentRequested>(json);
-                    }
-                    catch (JsonException ex)
+                    if (!PaymentRequestValidator.TryParse(json, out var payment))
                     {
                         logger.LogWarning(
-                            ex,
-                            "Mensagem rejeitada: JSON inválido.");
-
-                        dispositionAttempted = true;
-                        await channel.BasicNackAsync(
-                            deliveryTag: args.DeliveryTag,
-                            multiple: false,
-                            requeue: false);
-
-                        return;
-                    }
-
-                    if (payment == null ||
-                        payment.OrderId <= 0 ||
-                        payment.Amount <= 0)
-                    {
-                        logger.LogWarning(
-                            "Mensagem rejeitada: OrderId e Amount devem ser maiores que zero.");
+                            "Mensagem rejeitada: JSON inválido ou OrderId/Amount não positivos.");
 
                         dispositionAttempted = true;
                         await channel.BasicNackAsync(

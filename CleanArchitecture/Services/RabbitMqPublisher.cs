@@ -18,10 +18,10 @@ namespace CleanArchitecture.Services
         {
             var factory = new ConnectionFactory
             {
-                HostName = _configuration["RabbitMQ:Host"],
+                HostName = _configuration["RabbitMQ:Host"] ?? throw new InvalidOperationException("RabbitMQ:Host não configurado."),
                 Port = int.Parse(_configuration["RabbitMQ:Port"]!),
-                UserName = _configuration["RabbitMQ:User"],
-                Password = _configuration["RabbitMQ:Password"]
+                UserName = _configuration["RabbitMQ:User"] ?? throw new InvalidOperationException("RabbitMQ:User não configurado."),
+                Password = _configuration["RabbitMQ:Password"] ?? throw new InvalidOperationException("RabbitMQ:Password não configurado.")
             };
 
             await using var connection =
